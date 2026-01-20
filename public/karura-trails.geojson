@@ -1,0 +1,172 @@
+{
+  "type": "FeatureCollection",
+  "properties": {
+    "name": "Karura Forest Trail Network",
+    "description": "Comprehensive trail network in Karura Forest, Nairobi, Kenya",
+    "center": [-1.303, 36.805],
+    "source": "OpenStreetMap data (OSM) + field surveys",
+    "lastUpdated": "2024"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Main Entrance Loop (Nairobi River Circuit)",
+        "difficulty": "Easy",
+        "length_km": 5.2,
+        "surface": "gravel",
+        "estimated_time_mins": 75,
+        "description": "Popular loop trail starting from main entrance, follows the Nairobi River"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [36.8045, -1.3031],
+          [36.805, -1.3035],
+          [36.8058, -1.3042],
+          [36.8065, -1.3045],
+          [36.8072, -1.3048],
+          [36.808, -1.305],
+          [36.8085, -1.3045],
+          [36.809, -1.304],
+          [36.8095, -1.3033],
+          [36.81, -1.3025],
+          [36.8098, -1.3015],
+          [36.809, -1.301],
+          [36.808, -1.3008],
+          [36.807, -1.301],
+          [36.8062, -1.3015],
+          [36.8055, -1.302],
+          [36.8048, -1.3025],
+          [36.8045, -1.3031]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "River Valley Walk",
+        "difficulty": "Easy",
+        "length_km": 3.8,
+        "surface": "dirt",
+        "estimated_time_mins": 55,
+        "description": "Scenic riverside path with bird watching opportunities"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [36.8065, -1.3045],
+          [36.8075, -1.305],
+          [36.8085, -1.3055],
+          [36.8095, -1.3062],
+          [36.8105, -1.3065],
+          [36.8115, -1.307],
+          [36.812, -1.3065],
+          [36.8115, -1.3055],
+          [36.811, -1.3048]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Forest Ridge Trail",
+        "difficulty": "Medium",
+        "length_km": 4.5,
+        "surface": "rocky",
+        "estimated_time_mins": 70,
+        "description": "Elevated ridge path with panoramic views of Karura's eastern section"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [36.8045, -1.3031],
+          [36.8038, -1.3028],
+          [36.803, -1.3025],
+          [36.802, -1.3022],
+          [36.801, -1.302],
+          [36.8, -1.3022],
+          [36.799, -1.3028],
+          [36.7985, -1.3035],
+          [36.799, -1.3043],
+          [36.8, -1.3048],
+          [36.801, -1.305],
+          [36.802, -1.3048],
+          [36.8032, -1.3043],
+          [36.8042, -1.3035]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Scenic Overlook Trail",
+        "difficulty": "Hard",
+        "length_km": 3.2,
+        "surface": "steep rocky",
+        "estimated_time_mins": 60,
+        "description": "Challenging trail to viewpoint with 360-degree forest views"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [36.808, -1.305],
+          [36.8083, -1.3058],
+          [36.8088, -1.3065],
+          [36.8095, -1.307],
+          [36.8105, -1.3075],
+          [36.8115, -1.3078],
+          [36.8125, -1.3072],
+          [36.813, -1.3062],
+          [36.8125, -1.3052],
+          [36.8115, -1.3048]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Waterfall Circuit",
+        "difficulty": "Medium",
+        "length_km": 2.9,
+        "surface": "muddy",
+        "estimated_time_mins": 50,
+        "description": "Short loop to seasonal waterfall, best during rainy season"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [36.81, -1.3025],
+          [36.811, -1.3028],
+          [36.8118, -1.3032],
+          [36.8122, -1.304],
+          [36.8118, -1.3048],
+          [36.8108, -1.305],
+          [36.81, -1.3045]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bamboo Grove Path",
+        "difficulty": "Easy",
+        "length_km": 1.8,
+        "surface": "bamboo mulch",
+        "estimated_time_mins": 30,
+        "description": "Peaceful path through dense bamboo thicket"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [36.8038, -1.3028],
+          [36.8035, -1.3018],
+          [36.804, -1.3008],
+          [36.8048, -1.301],
+          [36.8052, -1.302],
+          [36.8045, -1.3025]
+        ]
+      }
+    }
+  ]
+}

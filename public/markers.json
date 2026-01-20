@@ -1,0 +1,142 @@
+{
+  "markers": [
+    {
+      "id": 1,
+      "name": "Main Gate Entrance",
+      "description": "Primary entry point to Karura Forest Reserve",
+      "latitude": -1.3031,
+      "longitude": 36.8045,
+      "type": "start",
+      "osmType": "amenity/entrance"
+    },
+    {
+      "id": 2,
+      "name": "Ancient Fig Tree (Mugumo)",
+      "description": "Sacred 200+ year old fig tree, cultural landmark",
+      "latitude": -1.3045,
+      "longitude": 36.8065,
+      "type": "landmark",
+      "osmType": "natural/tree"
+    },
+    {
+      "id": 3,
+      "name": "Forest Stream Crossing",
+      "description": "Beautiful tributary of Nairobi River, seasonal waterfall",
+      "latitude": -1.3055,
+      "longitude": 36.8085,
+      "type": "water",
+      "osmType": "natural/water"
+    },
+    {
+      "id": 4,
+      "name": "East Ridge Lookout Point",
+      "description": "360-degree panoramic views of forest and Nairobi skyline",
+      "latitude": -1.3078,
+      "longitude": 36.811,
+      "type": "viewpoint",
+      "osmType": "tourism/viewpoint"
+    },
+    {
+      "id": 5,
+      "name": "Bird Watching Platform",
+      "description": "Home to 150+ bird species including crowned eagles",
+      "latitude": -1.302,
+      "longitude": 36.7995,
+      "type": "landmark",
+      "osmType": "tourism/viewpoint"
+    },
+    {
+      "id": 6,
+      "name": "Medicinal Plants & Ethnobotany Garden",
+      "description": "Indigenous plants used for traditional medicine and healing",
+      "latitude": -1.3048,
+      "longitude": 36.812,
+      "type": "landmark",
+      "osmType": "natural/garden"
+    },
+    {
+      "id": 7,
+      "name": "Historic Stone Shelter (1920s)",
+      "description": "Colonial-era shelter, restored heritage structure",
+      "latitude": -1.301,
+      "longitude": 36.808,
+      "type": "landmark",
+      "osmType": "historic/ruins"
+    },
+    {
+      "id": 8,
+      "name": "Wildlife Photography Zone",
+      "description": "Prime spot for photographing forest animals (antelopes, monkeys)",
+      "latitude": -1.3018,
+      "longitude": 36.81,
+      "type": "viewpoint",
+      "osmType": "tourism/information"
+    },
+    {
+      "id": 9,
+      "name": "Canopy Walkway Junction",
+      "description": "Gateway to elevated walkway through forest tree tops",
+      "latitude": -1.3062,
+      "longitude": 36.8105,
+      "type": "landmark",
+      "osmType": "tourism/attraction"
+    },
+    {
+      "id": 10,
+      "name": "Rest Pavilion & Picnic Area",
+      "description": "Shaded pavilion with benches and picnic facilities",
+      "latitude": -1.3025,
+      "longitude": 36.805,
+      "type": "facility",
+      "osmType": "amenity/shelter"
+    },
+    {
+      "id": 11,
+      "name": "Bamboo Grove Sanctuary",
+      "description": "Dense bamboo thicket, peaceful meditation spot",
+      "latitude": -1.3015,
+      "longitude": 36.8035,
+      "type": "landmark",
+      "osmType": "natural/forest"
+    },
+    {
+      "id": 12,
+      "name": "Nairobi River Viewpoint",
+      "description": "Scenic overlook of main river flowing through forest",
+      "latitude": -1.304,
+      "longitude": 36.811,
+      "type": "viewpoint",
+      "osmType": "natural/water"
+    },
+    {
+      "id": 13,
+      "name": "Conservation Information Center",
+      "description": "Learn about forest ecology and conservation efforts",
+      "latitude": -1.3032,
+      "longitude": 36.8048,
+      "type": "facility",
+      "osmType": "amenity/information"
+    },
+    {
+      "id": 14,
+      "name": "Emergency Medical Station",
+      "description": "First aid and emergency services point",
+      "latitude": -1.305,
+      "longitude": 36.8095,
+      "type": "facility",
+      "osmType": "amenity/clinic"
+    },
+    {
+      "id": 15,
+      "name": "Exit Gate (Southern)",
+      "description": "Alternative exit point for loop trails",
+      "latitude": -1.3008,
+      "longitude": 36.8055,
+      "type": "end",
+      "osmType": "amenity/exit"
+    }
+  ],
+  "source": "Karura Forest Reserve map + OpenStreetMap",
+  "lastUpdated": "2024",
+  "totalMarkers": 15
+}
