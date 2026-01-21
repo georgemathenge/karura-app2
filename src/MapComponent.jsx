@@ -83,10 +83,13 @@ const MapComponent = () => {
         const trailsData = await trailsResponse.json();
         setTrails(trailsData);
 
+        console.log('Trails loaded:', trailsData.features.length);
+
         // Build trail graph for pathfinding
         const graph = new TrailGraph(trailsData);
         setTrailGraph(graph);
         trailGraphRef.current = graph;
+        console.log('TrailGraph built and ready');
 
         const markersResponse = await fetch('/markers.json');
         const markersData = await markersResponse.json();
@@ -316,7 +319,7 @@ const MapComponent = () => {
             newRoute[i].longitude,
             newRoute[i].latitude,
           ]);
-          total += turf.distance(point1, point2, { units: 'kilometers' });
+          total += turf.distance(point1, point2, 'kilometers');
           prevMarker = newRoute[i];
         }
       } catch (error) {
@@ -332,37 +335,201 @@ const MapComponent = () => {
 
   // Start journey to first marker in route with A* pathfinding
   const handleStartJourney = useCallback(() => {
+    console.log('Start journey clicked');
+    console.log('Route markers:', routeMarkers.length);
+    console.log('Trail graph ready:', trailGraphRef.current ? 'yes' : 'no');
+    console.log('User location:', userLocation);
+
     if (routeMarkers.length === 0) {
       alert('Add markers to your route first');
       return;
     }
 
-    if (!trailGraphRef.current || !userLocation) {
-      alert('Waiting for GPS and trail data...');
+    if (!trailGraphRef.current) {
+      alert('Trail data still loading... please wait a moment');
+      return;
+    }
+
+    if (!userLocation) {
+      alert('Waiting for GPS fix... please enable location');
       return;
     }
 
     // Calculate path from current position to first marker using A*
     try {
-      const pathInfo = trailGraphRef.current.findPath(
-        userLocation.latitude,
-        userLocation.longitude,
+      console.log('Finding path from', userLocation, 'to', routeMarkers[0]);
+
+      // If the user has set a start marker and is far away, offer to use it
+      let startLat = userLocation.latitude;
+      let startLng = userLocation.longitude;
+      if (startMarker) {
+        try {
+          const userToStart = turf.distance(
+            turf.point([userLocation.longitude, userLocation.latitude]),
+            turf.point([startMarker.longitude, startMarker.latitude]),
+            'meters'
+          );
+          console.log('Distance to selected start marker:', Math.round(userToStart), 'm');
+          if (userToStart > 2000) {
+            const useStart = window.confirm(
+              `You are ${Math.round(userToStart)}m away from the selected start marker. Use the selected marker as the journey start instead of your current GPS location?`
+            );
+            if (useStart) {
+              startLat = startMarker.latitude;
+              startLng = startMarker.longitude;
+              console.log('Using selected start marker as start point');
+            }
+          }
+        } catch (e) {
+          console.warn('Could not compute distance to start marker:', e);
+        }
+      }
+      // Inspect snap distances first for better diagnostics
+      const startSnapInfo = trailGraphRef.current.snapToTrail(
+        startLat,
+        startLng,
+        500
+      );
+      const endSnapInfo = trailGraphRef.current.snapToTrail(
         routeMarkers[0].latitude,
         routeMarkers[0].longitude,
-        50 // max snap distance
+        500
       );
 
+      console.log('Start snap:', startSnapInfo);
+      console.log('End snap:', endSnapInfo);
+
+      // First try a conservative snap distance, then expand if needed
+      let pathInfo = trailGraphRef.current.findPath(
+        startLat,
+        startLng,
+        routeMarkers[0].latitude,
+        routeMarkers[0].longitude,
+        50 // initial max snap distance (meters)
+      );
+
+      console.log('Initial path attempt (50m):', pathInfo ? 'found' : 'not found');
+
+      // If not found, try wider snap radii to accommodate slight GPS/trail mismatches
+      if (!pathInfo) {
+        pathInfo = trailGraphRef.current.findPath(
+          startLat,
+          startLng,
+          routeMarkers[0].latitude,
+          routeMarkers[0].longitude,
+          200
+        );
+        console.log('Second path attempt (200m):', pathInfo ? 'found' : 'not found');
+      }
+
+      if (!pathInfo) {
+        pathInfo = trailGraphRef.current.findPath(
+          startLat,
+          startLng,
+          routeMarkers[0].latitude,
+          routeMarkers[0].longitude,
+          500
+        );
+        console.log('Third path attempt (500m):', pathInfo ? 'found' : 'not found');
+      }
+
+      console.log('Final path result:', pathInfo ? 'found' : 'not found');
+
+      // If path wasn't found by snapping, fallback to nearest-node routing
+      if (!pathInfo) {
+        console.log('Attempting nearest-node fallback routing');
+        const startNode = trailGraphRef.current.findNearestNode(
+          userLocation.latitude,
+          userLocation.longitude,
+          5000
+        );
+        const endNode = trailGraphRef.current.findNearestNode(
+          routeMarkers[0].latitude,
+          routeMarkers[0].longitude,
+          5000
+        );
+
+        console.log('Nearest nodes:', { startNode, endNode });
+
+        if (startNode !== null && endNode !== null) {
+          const nodesPath = trailGraphRef.current.aStarSearch(startNode, endNode);
+          if (nodesPath && nodesPath.length > 0) {
+            // Build a pathInfo-like object from nodesPath
+            const waypoints = [];
+            let totalDistance = 0;
+
+            // Start waypoint: nearest node to user
+            const startNodeObj = trailGraphRef.current.nodes.get(startNode);
+            waypoints.push({
+              type: 'snap',
+              latitude: startNodeObj.latitude,
+              longitude: startNodeObj.longitude,
+              segment: null,
+              distanceFromStart: 0,
+            });
+
+            for (let i = 0; i < nodesPath.length - 1; i++) {
+              const currentNodeId = nodesPath[i];
+              const nextNodeId = nodesPath[i + 1];
+
+              const currentNode = trailGraphRef.current.nodes.get(currentNodeId);
+              const conn = currentNode.connectedSegments.find((c) => c.targetNode === nextNodeId);
+              if (conn) {
+                const segment = trailGraphRef.current.segments[conn.segmentId];
+                totalDistance += segment.distance;
+                const nextNode = trailGraphRef.current.nodes.get(nextNodeId);
+                waypoints.push({
+                  type: 'junction',
+                  nodeId: nextNodeId,
+                  latitude: nextNode.latitude,
+                  longitude: nextNode.longitude,
+                  segment,
+                  distanceFromStart: totalDistance,
+                });
+              }
+            }
+
+            // Destination waypoint: nearest node to destination
+            const endNodeObj = trailGraphRef.current.nodes.get(endNode);
+            waypoints.push({
+              type: 'destination',
+              latitude: endNodeObj.latitude,
+              longitude: endNodeObj.longitude,
+              distanceFromStart: totalDistance,
+            });
+
+            pathInfo = {
+              waypoints,
+              totalDistance,
+              startSnap: { latitude: startNodeObj.latitude, longitude: startNodeObj.longitude },
+              endSnap: { latitude: endNodeObj.latitude, longitude: endNodeObj.longitude },
+              segments: nodesPath.map((nodeId) => ({ nodeId, node: trailGraphRef.current.nodes.get(nodeId) })),
+            };
+
+            console.log('Fallback path built, distance:', totalDistance);
+          } else {
+            console.log('Nearest-node A* failed to find connecting path');
+          }
+        } else {
+          console.log('Could not find nearby graph nodes for fallback routing');
+        }
+      }
+
       if (pathInfo) {
+        console.log('Path distance:', pathInfo.totalDistance, 'meters');
         setActiveRoutePath(pathInfo);
         setEstimatedTime(estimateWalkingTime(pathInfo.totalDistance));
 
         // Auto-zoom to fit entire path
         if (map.current) {
           const coords = trailGraphRef.current.getPathCoordinates(pathInfo);
+          console.log('Path coordinates:', coords.length);
+          
           if (coords.length > 0) {
             const latLngs = coords.map(([lat, lng]) => L.latLng(lat, lng));
             const bounds = L.latLngBounds(latLngs);
             map.current.fitBounds(bounds, { padding: [50, 50] });
+            console.log('Map zoomed to path');
           }
         }
 
@@ -370,14 +537,44 @@ const MapComponent = () => {
         setCurrentRouteIndex(0);
         setSelectedMarker(routeMarkers[0]);
         setArrivedAtDestination(false);
+        console.log('Journey started');
       } else {
-        alert('Could not find path on trail network. Try a closer destination.');
+        // Provide actionable diagnostics to the user
+        try {
+          const straightDist = turf.distance(
+            turf.point([userLocation.longitude, userLocation.latitude]),
+            turf.point([routeMarkers[0].longitude, routeMarkers[0].latitude]),
+            'meters'
+          );
+
+          const startSnap = trailGraphRef.current.snapToTrail(
+            userLocation.latitude,
+            userLocation.longitude,
+            1000
+          );
+          const endSnap = trailGraphRef.current.snapToTrail(
+            routeMarkers[0].latitude,
+            routeMarkers[0].longitude,
+            1000
+          );
+
+          const startSnapDist = startSnap ? Math.round(startSnap.distance) + 'm' : 'not near trails';
+          const endSnapDist = endSnap ? Math.round(endSnap.distance) + 'm' : 'not near trails';
+
+          alert(
+            `Could not find path on trail network. Straight-line distance: ${Math.round(straightDist)}m.\n` +
+              `Distance to nearest trail — you: ${startSnapDist}, destination: ${endSnapDist}.\n` +
+              `Try choosing a closer destination or move nearer a mapped trail.`
+          );
+        } catch (e) {
+          alert('Could not find path on trail network. Try a closer destination.');
+        }
       }
     } catch (error) {
       console.error('Path calculation error:', error);
-      alert('Error calculating path. Make sure start and end are on or near trails.');
+      alert('Error calculating path: ' + error.message);
     }
-  }, [routeMarkers, trailGraphRef, userLocation]);
+  }, [routeMarkers, userLocation]);
 
   // Advance to next marker in route and recalculate path
   const handleNextMarker = useCallback(() => {
@@ -581,7 +778,7 @@ const MapComponent = () => {
         duration: 0.5,
       });
     }
-  }, [currentRouteIndex, activeRoutePath, userLocation, nextJunction, mapBearing]);
+  }, [currentRouteIndex, activeRoutePath, userLocation, nextJunction, mapBearing, routeMarkers]);
 
   // Live distance recalculation during active journey
   useEffect(() => {
@@ -621,7 +818,7 @@ const MapComponent = () => {
     } catch (error) {
       console.error('Distance recalculation error:', error);
     }
-  }, [userLocation, currentRouteIndex, activeRoutePath, routeMarkers, trailGraphRef]);
+  }, [userLocation, currentRouteIndex, activeRoutePath, routeMarkers]);
 
   // Load custom markers from localStorage
   useEffect(() => {
@@ -735,9 +932,7 @@ const MapComponent = () => {
         markers.forEach((marker) => {
           const markerPoint = turf.point([marker.longitude, marker.latitude]);
           const userPoint = turf.point([userLocation.longitude, userLocation.latitude]);
-          const distance = turf.distance(userPoint, markerPoint, {
-            units: 'meters',
-          });
+          const distance = turf.distance(userPoint, markerPoint, 'meters');
 
           if (distance < 20 && !visitedMarkers.has(marker.id)) {
             setVisitedMarkers((prev) => new Set([...prev, marker.id]));
@@ -770,7 +965,6 @@ const MapComponent = () => {
     }
   }, [
     userLocation,
-    trailGraphRef,
     markers,
     visitedMarkers,
     selectedMarker,
@@ -818,7 +1012,7 @@ const MapComponent = () => {
           try {
             // Try to slice the line from start to end
             const sliced = turf.lineSlice(startPoint, endPoint, line);
-            const distance = turf.length(sliced, { units: 'kilometers' });
+            const distance = turf.length(sliced, 'kilometers');
 
             if (distance < shortestDistance) {
               shortestDistance = distance;
@@ -845,7 +1039,7 @@ const MapComponent = () => {
                     snappedLocation.longitude,
                     snappedLocation.latitude,
                   ]),
-                  { units: 'kilometers' },
+                  'kilometers',
                 )
               : 0;
 
@@ -1124,6 +1318,8 @@ const MapComponent = () => {
                   <button
                     className="btn-start-route"
                     onClick={handleStartJourney}
+                    disabled={!trailGraph || !userLocation}
+                    title={!trailGraph ? 'Loading trails...' : !userLocation ? 'Waiting for GPS fix' : 'Start navigation'}
                   >
                     🗺️ Start Journey
                   </button>

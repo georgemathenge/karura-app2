@@ -63,9 +63,7 @@ export class TrailGraph {
           // Calculate segment distance
           const startPoint = turf.point(coord);
           const endPoint = turf.point(nextCoord);
-          const distance = turf.distance(startPoint, endPoint, {
-            units: 'meters',
-          });
+          const distance = turf.distance(startPoint, endPoint, 'meters');
 
           const segmentId = this.segments.length;
           this.segments.push({
@@ -111,9 +109,7 @@ export class TrailGraph {
         segment.endCoord
       );
 
-      const distToSegment = turf.distance(userPoint, projectedPoint, {
-        units: 'meters',
-      });
+      const distToSegment = turf.distance(userPoint, projectedPoint, 'meters');
 
       if (distToSegment < closestDistance) {
         closestDistance = distToSegment;
@@ -261,7 +257,7 @@ export class TrailGraph {
       return turf.distance(
         turf.point([node.longitude, node.latitude]),
         turf.point([endNode.longitude, endNode.latitude]),
-        { units: 'meters' }
+        'meters'
       );
     };
 
@@ -327,9 +323,7 @@ export class TrailGraph {
     let nearestDistance = maxDistance;
 
     this.nodes.forEach((node, nodeId) => {
-      const distance = turf.distance(point, turf.point([node.longitude, node.latitude]), {
-        units: 'meters',
-      });
+      const distance = turf.distance(point, turf.point([node.longitude, node.latitude]), 'meters');
 
       if (distance < nearestDistance) {
         nearestDistance = distance;
@@ -399,9 +393,7 @@ export class TrailGraph {
       currentSegment.endCoord
     );
 
-    const distance = turf.distance(userPoint, projectedPoint, {
-      units: 'meters',
-    });
+    const distance = turf.distance(userPoint, projectedPoint, 'meters');
 
     return distance > offTrackThreshold;
   }
